@@ -1,6 +1,6 @@
 {
   "name": "castui",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Tanner Ellen",
   "main": "index.js",
   "description": "A terminal UI for working with videos uploaded to AWS",
