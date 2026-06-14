@@ -37,7 +37,8 @@ Example `config.json`:
     "region": "your-aws-region"
   },
   "watchUrl": "your-watch-domain.example.com",
-  "pageSize": 50
+  "pageSize": 50,
+  "filePickerCommand": "zenity --file-selection --title='Select video'"
 }
 ```
 
@@ -47,6 +48,7 @@ Example `config.json`:
 | `aws.region` | The AWS region of your bucket (e.g. `us-east-1`) |
 | `watchUrl` | Base domain used to build video watch URLs |
 | `pageSize` | Number of videos to load at a time (default: `50`) |
+| `filePickerCommand` | Shell command that outputs a file path to stdout. Omit to use the default (`zenity` on Linux, `osascript` on macOS) |
 
 ## Installation
 

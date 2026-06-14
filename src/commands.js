@@ -82,9 +82,11 @@ export async function renameVideo(key, newName) {
 
 /** @type {() => Promise<string>} */
 export async function pickFile() {
+  if (config.filePickerCommand) {
+    const result = await runCommand(["sh", "-c", config.filePickerCommand]);
+    return result.trim();
+  }
   if (isMac) {
-    // osascript returns an alias path like "alias Macintosh HD:Users/name/file.mp4"
-    // Convert to POSIX path with a second osascript call
     const alias = await runCommand([
       "osascript",
       "-e",

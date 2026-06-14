@@ -7,6 +7,7 @@ import { join } from "path";
  * @property {{ bucket: string, region: string }} [aws]
  * @property {string} [watchUrl]
  * @property {number} [pageSize]
+ * @property {string} [filePickerCommand]
  */
 
 const CONFIG_PATH = join(homedir(), ".config", "castui", "config.json");
@@ -48,4 +49,6 @@ export const config = {
   baseAwsUrl: `${bucket}.s3.${region}.amazonaws.com`,
   baseWatchUrl: fileConfig.watchUrl ?? "",
   pageSize: fileConfig.pageSize ?? 50,
+  /** @type {string | null} */
+  filePickerCommand: fileConfig.filePickerCommand ?? null,
 };
