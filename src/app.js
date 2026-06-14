@@ -129,10 +129,15 @@ export async function initialize() {
     if (screen.focused !== renderedVideosUi) return;
 
     if (key.name === "enter" || key.name === "return") {
-      filterActive = false;
-      filterBar.setContent(`{bold}filter:{/bold} ${filterText}`);
-      if (!filterText) hideFilterBar();
-      screen.render();
+      // Defer clearing filterActive so element key handlers still see it as true
+      setTimeout(() => {
+        filterActive = false;
+        filterBar.setContent(`{bold}filter:{/bold} ${filterText}`);
+        if (!filterText) hideFilterBar();
+        screen.render();
+      }, 0);
+      screen.grabKeys = true;
+      setTimeout(() => { screen.grabKeys = false; }, 0);
       return;
     }
 
