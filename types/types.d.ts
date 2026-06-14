@@ -2,7 +2,6 @@ export type StringKeyedObject = {
   [key: string]: string | number | boolean;
 };
 
-// export type FieldMap = Map<string, Label>;
 export type FieldMap = Map<
   string,
   { name: string; type: "string" | "number" | "boolean" }
