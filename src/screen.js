@@ -30,7 +30,12 @@ export function createScreen() {
 
   // Quit on Escape, q, or Control-C.
   screen.key(["q", "C-c"], function () {
-    return process.exit(0);
+    // Force isAlt so leave() doesn't bail early (can get confused after image preview)
+    screen.program.isAlt = true;
+    screen.destroy();
+    // Clear the normal buffer in case image preview left content there
+    process.stdout.write("\x1b[2J\x1b[H");
+    process.exit(0);
   });
 
   currentScreen = screen;
