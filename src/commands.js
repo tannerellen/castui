@@ -102,7 +102,7 @@ export async function pickFile() {
   ]);
 }
 
-/** @type {(filePath: string, options?: { permanent?: boolean }) => Promise<void>} */
+/** @type {(filePath: string, options?: { permanent?: boolean }) => Promise<string>} */
 export async function uploadVideo(filePath, options = {}) {
   const filename = filePath.split("/").pop();
   const bucket = config.bucket;
@@ -116,6 +116,7 @@ export async function uploadVideo(filePath, options = {}) {
     "-c",
     `aws s3 cp "${filePath}" "s3://${bucket}/${targetKey}"`,
   ]);
+  return targetKey;
 }
 
 /** @type {(key: string) => Promise<void>} */
