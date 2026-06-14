@@ -79,6 +79,42 @@ cd castui
 bun index.js
 ```
 
+## Command Line Usage
+
+Castui can be used non-interactively from the command line for scripting and automation.
+
+### Flags
+
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--upload <path>` | `-u` | Upload a file without launching the UI |
+| `--interactive` | `-i` | Open the file picker to select a file to upload |
+| `--permanent` | `-p` | Upload the file as permanent (no expiry) |
+| `--clipboard` | `-c` | Copy the playback URL to clipboard after upload |
+| `--version` | `-v` | Print the version and exit |
+| `--help` | `-h` | Print help and exit |
+
+> `--permanent` and `--clipboard` only apply when uploading. `--clipboard` always produces a URL without autoplay regardless of the config setting.
+
+### Examples
+
+```bash
+# Upload a file
+castui --upload /path/to/video.mp4
+
+# Upload a file and copy the playback URL to clipboard
+castui --upload /path/to/video.mp4 --clipboard
+
+# Upload a file as permanent and copy URL
+castui --upload /path/to/video.mp4 --permanent --clipboard
+
+# Open file picker to select a file, then upload
+castui --interactive
+
+# Open file picker, upload as permanent, copy URL
+castui --interactive --permanent --clipboard
+```
+
 ### Navigation
 | Key | Action |
 |---|---|
