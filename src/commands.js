@@ -21,7 +21,8 @@ export function getWatchUrl(key) {
   const [type, ...rest] = key.split("/");
   const filename = rest.join("/");
   const encoded = btoa(filename);
-  return `https://${config.baseWatchUrl}/?t=${type}&s=${encoded}`;
+  const autoplay = config.autoplay ? "&autoplay=1" : "";
+  return `https://${config.baseWatchUrl}/?t=${type}&s=${encoded}${autoplay}`;
 }
 
 export function viewVideo(key) {

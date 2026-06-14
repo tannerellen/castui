@@ -8,6 +8,7 @@ import { join } from "path";
  * @property {string} [watchUrl]
  * @property {number} [pageSize]
  * @property {string} [filePickerCommand]
+ * @property {{ autoplay: boolean }} [playback]
  */
 
 const CONFIG_PATH = join(homedir(), ".config", "castui", "config.json");
@@ -51,4 +52,5 @@ export const config = {
   pageSize: fileConfig.pageSize ?? 50,
   /** @type {string | null} */
   filePickerCommand: fileConfig.filePickerCommand ?? null,
+  autoplay: fileConfig.playback?.autoplay ?? false,
 };

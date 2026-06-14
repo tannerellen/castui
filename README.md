@@ -38,7 +38,10 @@ Example `config.json`:
   },
   "watchUrl": "your-watch-domain.example.com",
   "pageSize": 50,
-  "filePickerCommand": "zenity --file-selection --title='Select video'"
+  "filePickerCommand": "zenity --file-selection --title='Select video'",
+  "playback": {
+    "autoplay": false
+  }
 }
 ```
 
@@ -49,6 +52,7 @@ Example `config.json`:
 | `watchUrl` | Base domain used to build video watch URLs |
 | `pageSize` | Number of videos to load at a time (default: `50`) |
 | `filePickerCommand` | Shell command that outputs a file path to stdout. Omit to use the default (`zenity` on Linux, `osascript` on macOS) |
+| `playback.autoplay` | If `true`, appends `autoplay=1` to the watch URL when opening a video (default: `false`) |
 
 ## Installation
 
