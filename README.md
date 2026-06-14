@@ -5,7 +5,7 @@ A clean, keyboard-driven TUI for browsing, previewing, uploading, renaming, and 
 
 ## Requirements
 
-- [Bun](https://bun.sh/) javascript runtime
+- [Bun](https://bun.sh/) javascript runtime (only when running from source)
 - [AWS CLI](https://aws.amazon.com/cli/) installed and configured with appropriate credentials
 - `ffmpeg` — for generating video preview thumbnails
 - One of the following for image preview display:
