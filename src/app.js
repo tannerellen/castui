@@ -81,6 +81,20 @@ export async function initialize() {
     screen.render();
   }
 
+  function hideAllChildren() {
+    screen.children.forEach((el) => el.hide());
+  }
+
+  function showAllChildren() {
+    screen.children.forEach((el) => el.show());
+    // Restore filterBar to its correct visibility
+    if (!filterBar.visible && filterText) {
+      filterBar.show();
+    } else if (filterBar.visible && !filterText) {
+      filterBar.hide();
+    }
+  }
+
   let moreNotice = null;
 
   renderedVideosUi.on("select item", function () {
@@ -178,9 +192,9 @@ export async function initialize() {
     const index = renderedVideosUi.selected;
     const video = getVideoByIndex(index);
     if (!video) return;
-    screen.children.forEach((el) => el.hide());
+    hideAllChildren();
     deleteDialog(screen, video, (submitted) => {
-      screen.children.forEach((el) => el.show());
+      showAllChildren();
       if (submitted) reloadVideos();
       renderedVideosUi.focus();
       screen.render();
@@ -192,9 +206,9 @@ export async function initialize() {
     const index = renderedVideosUi.selected;
     const video = getVideoByIndex(index);
     if (!video) return;
-    screen.children.forEach((el) => el.hide());
+    hideAllChildren();
     renameDialog(screen, video, (submitted) => {
-      screen.children.forEach((el) => el.show());
+      showAllChildren();
       if (submitted) reloadVideos();
       renderedVideosUi.focus();
       screen.render();
@@ -371,13 +385,13 @@ export async function initialize() {
     };
 
     if (isPermanent) {
-      screen.children.forEach((el) => el.hide());
+      hideAllChildren();
       confirmDialog(screen, {
         title: "Remove Permanent",
         message: "Are you sure you would like to\nchange this video to expire?",
         confirmLabel: "Change",
       }, async (confirmed) => {
-        screen.children.forEach((el) => el.show());
+        showAllChildren();
         renderedVideosUi.focus();
         if (confirmed) await doToggle();
         screen.render();
