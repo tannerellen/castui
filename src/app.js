@@ -50,7 +50,7 @@ export async function initialize() {
   // Filter bar
   let filterText = '';
   let filterActive = false;
-  let previewOpen = false;
+  let enterSuppressed = false;
   const blessed = /** @type {any} */ (reblessed);
   const filterBar = blessed.text({
     parent: screen,
@@ -93,6 +93,13 @@ export async function initialize() {
     } else if (filterBar.visible && !filterText) {
       filterBar.hide();
     }
+  }
+
+  function dialogClosed() {
+    // Briefly suppress key propagation so the enter/esc that closed the dialog
+    // doesn't leak into renderedVideosUi handlers
+    screen.grabKeys = true;
+    setTimeout(() => { screen.grabKeys = false; }, 0);
   }
 
   let moreNotice = null;
@@ -193,8 +200,11 @@ export async function initialize() {
     const video = getVideoByIndex(index);
     if (!video) return;
     hideAllChildren();
+    enterSuppressed = true;
     deleteDialog(screen, video, (submitted) => {
       showAllChildren();
+      dialogClosed();
+      setTimeout(() => { enterSuppressed = false; }, 0);
       if (submitted) reloadVideos();
       renderedVideosUi.focus();
       screen.render();
@@ -207,8 +217,11 @@ export async function initialize() {
     const video = getVideoByIndex(index);
     if (!video) return;
     hideAllChildren();
+    enterSuppressed = true;
     renameDialog(screen, video, (submitted) => {
       showAllChildren();
+      dialogClosed();
+      setTimeout(() => { enterSuppressed = false; }, 0);
       if (submitted) reloadVideos();
       renderedVideosUi.focus();
       screen.render();
@@ -283,11 +296,11 @@ export async function initialize() {
   });
 
   renderedVideosUi.key(["enter", "return"], async function () {
-    if (filterActive || previewOpen) return;
-    previewOpen = true;
+    if (filterActive || enterSuppressed) return;
+    enterSuppressed = true;
     const index = renderedVideosUi.selected;
     const video = getVideoByIndex(index);
-    if (!video) { previewOpen = false; return; }
+    if (!video) { enterSuppressed = false; return; }
 
     // Show loading indicator while generating thumbnail
     const message = messageUi(screen, {
@@ -313,7 +326,7 @@ export async function initialize() {
       });
       setTimeout(() => { err.destroy(); screen.render(); }, 2000);
       screen.render();
-      previewOpen = false;
+      enterSuppressed = false;
       return;
     }
 
@@ -336,7 +349,7 @@ export async function initialize() {
     screen.program.hideCursor();
     screen.program.emit("resize");
     screen.render();
-    setTimeout(() => { previewOpen = false; }, 200);
+    setTimeout(() => { enterSuppressed = false; }, 200);
   });
 
   renderedVideosUi.key(["c"], function () {
@@ -386,12 +399,15 @@ export async function initialize() {
 
     if (isPermanent) {
       hideAllChildren();
+      enterSuppressed = true;
       confirmDialog(screen, {
         title: "Remove Permanent",
         message: "Are you sure you would like to\nchange this video to expire?",
         confirmLabel: "Change",
       }, async (confirmed) => {
         showAllChildren();
+        dialogClosed();
+        setTimeout(() => { enterSuppressed = false; }, 0);
         renderedVideosUi.focus();
         if (confirmed) await doToggle();
         screen.render();
