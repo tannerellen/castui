@@ -102,11 +102,12 @@ export async function pickFile() {
   ]);
 }
 
-/** @type {(filePath: string) => Promise<void>} */
-export async function uploadVideo(filePath) {
+/** @type {(filePath: string, options?: { permanent?: boolean }) => Promise<void>} */
+export async function uploadVideo(filePath, options = {}) {
   const filename = filePath.split("/").pop();
   const bucket = config.bucket;
-  const targetKey = `expires/${filename}`;
+  const prefix = options.permanent ? "permanent" : "expires";
+  const targetKey = `${prefix}/${filename}`;
   if (await s3KeyExists(targetKey)) {
     throw new Error(`A file named "${filename}" already exists.`);
   }
