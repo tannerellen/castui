@@ -17,11 +17,11 @@ function log(...args) {
 }
 
 /** @type {(key: string) => void} */
-export function getWatchUrl(key) {
+export function getWatchUrl(key, options = {}) {
   const [type, ...rest] = key.split("/");
   const filename = rest.join("/");
   const encoded = btoa(filename);
-  const autoplay = config.autoplay ? "&autoplay=1" : "";
+  const autoplay = (options.autoplay ?? config.autoplay) ? "&autoplay=1" : "";
   return `https://${config.baseWatchUrl}/?t=${type}&s=${encoded}${autoplay}`;
 }
 
@@ -29,8 +29,8 @@ export function viewVideo(key) {
   Bun.spawn([isMac ? "open" : "xdg-open", getWatchUrl(key)]);
 }
 
-export function copyVideoUrl(key) {
-  const url = getWatchUrl(key);
+export function copyVideoUrl(key, options = {}) {
+  const url = getWatchUrl(key, options);
   const candidates = [
     { bin: "wl-copy", cmd: `echo -n ${JSON.stringify(url)} | wl-copy` },
     {

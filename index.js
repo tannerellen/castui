@@ -49,7 +49,7 @@ async function cliUpload(filePath, permanent, clipboard, interactive) {
     const key = await uploadVideo(filePath, { permanent });
     console.log("Upload complete.");
     if (clipboard) {
-      copyVideoUrl(key);
+      copyVideoUrl(key, { autoplay: false });
       console.log("Playback URL copied to clipboard.");
     }
   } catch (err) {
