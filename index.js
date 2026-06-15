@@ -8,7 +8,8 @@ run();
 
 /** @type {() => void} */
 function run() {
-  const { command, uploadPath, permanent, clipboard, interactive } = processArgs();
+  const { command, uploadPath, permanent, clipboard, interactive } =
+    processArgs();
   switch (command) {
     case "--version":
       reportVersion();
@@ -17,7 +18,6 @@ function run() {
       help();
       return;
     case "--upload":
-    case "--interactive":
       cliUpload(uploadPath, permanent, clipboard, interactive);
       return;
     default:

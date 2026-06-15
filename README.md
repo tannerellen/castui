@@ -109,10 +109,10 @@ castui --upload /path/to/video.mp4 --clipboard
 castui --upload /path/to/video.mp4 --permanent --clipboard
 
 # Open file picker to select a file, then upload
-castui --interactive
+castui --upload --interactive
 
 # Open file picker, upload as permanent, copy URL
-castui --interactive --permanent --clipboard
+castui --upload --interactive --permanent --clipboard
 ```
 
 ### Navigation
