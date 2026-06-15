@@ -7,7 +7,7 @@ import reblessed from "../../external-dependencies/reblessed";
 
 const blessed = /** @type {any} */ (reblessed);
 
-/** @type {(container: BlessedElement, options: {title: string, message: string, confirmLabel?: string, onDestroy: Function}) => void} */
+/** @type {(container: BlessedElement, options: {title: string, message: string, confirmLabel?: string}, onDestroy: (confirmed?: boolean) => void) => void} */
 export function confirmDialog(container, options, onDestroy) {
   const screen = getScreen();
 

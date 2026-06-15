@@ -90,11 +90,11 @@ export async function initialize() {
   }
 
   function hideAllChildren() {
-    screen.children.forEach((el) => el.hide());
+    screen.children.forEach((/** @type {BlessedElement} */ el) => el.hide());
   }
 
   function showAllChildren() {
-    screen.children.forEach((el) => el.show());
+    screen.children.forEach((/** @type {BlessedElement} */ el) => el.show());
     // Restore filterBar to its correct visibility
     if (!filterBar.visible && filterText) {
       filterBar.show();
@@ -112,6 +112,7 @@ export async function initialize() {
     }, 0);
   }
 
+  /** @type {BlessedElement | null} */
   let moreNotice = null;
 
   renderedVideosUi.on("select item", function () {
@@ -159,45 +160,51 @@ export async function initialize() {
     hideFilterBar();
   });
 
-  screen.on("keypress", (ch, key) => {
-    if (!filterActive) return;
-    if (screen.focused !== renderedVideosUi) return;
+  screen.on(
+    "keypress",
+    (
+      /** @type {string} */ ch,
+      /** @type {{ name: string, ctrl: boolean, meta: boolean }} */ key,
+    ) => {
+      if (!filterActive) return;
+      if (screen.focused !== renderedVideosUi) return;
 
-    if (key.name === "enter" || key.name === "return") {
-      // Defer clearing filterActive so element key handlers still see it as true
-      setTimeout(() => {
-        filterActive = false;
-        filterBar.setContent(`{bold}filter:{/bold} ${filterText}`);
-        if (!filterText) hideFilterBar();
-        screen.render();
-      }, 0);
-      screen.grabKeys = true;
-      setTimeout(() => {
-        screen.grabKeys = false;
-      }, 0);
-      return;
-    }
+      if (key.name === "enter" || key.name === "return") {
+        // Defer clearing filterActive so element key handlers still see it as true
+        setTimeout(() => {
+          filterActive = false;
+          filterBar.setContent(`{bold}filter:{/bold} ${filterText}`);
+          if (!filterText) hideFilterBar();
+          screen.render();
+        }, 0);
+        screen.grabKeys = true;
+        setTimeout(() => {
+          screen.grabKeys = false;
+        }, 0);
+        return;
+      }
 
-    if (key.name === "escape") {
-      filterText = "";
-      setFilter("");
-      hideFilterBar();
-      return;
-    }
+      if (key.name === "escape") {
+        filterText = "";
+        setFilter("");
+        hideFilterBar();
+        return;
+      }
 
-    if (key.name === "backspace") {
-      filterText = filterText.slice(0, -1);
-    } else if (ch && !key.ctrl && !key.meta) {
-      filterText += ch;
-    }
+      if (key.name === "backspace") {
+        filterText = filterText.slice(0, -1);
+      } else if (ch && !key.ctrl && !key.meta) {
+        filterText += ch;
+      }
 
-    setFilter(filterText);
-    updateFilterBar();
-  });
+      setFilter(filterText);
+      updateFilterBar();
+    },
+  );
 
   registerNavigation(screen, [renderedVideosUi]);
 
-  screen.key(["?"], (ch, key) => {
+  screen.key(["?"], (/** @type {string} */ ch, /** @type {string} */ key) => {
     showHelp();
   });
 
@@ -217,7 +224,7 @@ export async function initialize() {
     if (!video) return;
     hideAllChildren();
     enterSuppressed = true;
-    deleteDialog(screen, video, (submitted) => {
+    deleteDialog(screen, video, (/** @type {boolean} */ submitted) => {
       showAllChildren();
       dialogClosed();
       setTimeout(() => {
@@ -236,7 +243,7 @@ export async function initialize() {
     if (!video) return;
     hideAllChildren();
     enterSuppressed = true;
-    renameDialog(screen, video, (submitted) => {
+    renameDialog(screen, video, (/** @type {boolean} */ submitted) => {
       showAllChildren();
       dialogClosed();
       setTimeout(() => {
@@ -250,12 +257,11 @@ export async function initialize() {
 
   renderedVideosUi.key(["u"], async function () {
     if (filterActive) return;
+    /** @type {BlessedElement | null | undefined} */
     let message;
     try {
       const filePath = await pickFile();
-      if (!filePath) {
-        return;
-      } // user cancelled, do nothing
+      if (!filePath) return; // user cancelled, do nothing
       message = messageUi(screen, {
         top: /** @type {number} */ (screen.height) - 1,
         left: 0,
@@ -482,6 +488,7 @@ export async function initialize() {
     }
   }
 
+  /** @type {(delay?: number) => Promise<void>} */
   async function refresh(delay) {
     const message = messageUi(screen, {
       top: /** @type {number} */ (screen.height) - 1,

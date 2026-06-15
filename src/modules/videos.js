@@ -21,26 +21,29 @@ let displayedList = [];
 let videoOffset = 0;
 
 /** @type {string} */
-let currentFilter = '';
+let currentFilter = "";
 
 /** @type {(renderedVideosUi: BlessedElement) => void} */
 export function registerVideoUi(renderedVideosUi) {
   videosUi = renderedVideosUi;
 }
 
-/** @type {(index: number) => any} */
+/** @type {() => any} */
 export function getDisplayedCount() {
   return displayedList.length;
 }
 
+/** @type {() => number} */
 export function getTotalCount() {
   return videoList.length;
 }
 
+/** @type {() => number} */
 export function getPageSize() {
   return PAGE_SIZE;
 }
 
+/** @type {(index: number) => any} */
 export function getVideoByIndex(index) {
   return displayedList[index - 1]; // offset by 1 to account for header row
 }
