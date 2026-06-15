@@ -16,7 +16,7 @@ function log(...args) {
   );
 }
 
-/** @type {(key: string) => void} */
+/** @type {(key: string, options?: { autoplay?: boolean }) => string} */
 export function getWatchUrl(key, options = {}) {
   const [type, ...rest] = key.split("/");
   const filename = rest.join("/");
@@ -25,10 +25,12 @@ export function getWatchUrl(key, options = {}) {
   return `https://${config.baseWatchUrl}/?t=${type}&s=${encoded}${autoplay}`;
 }
 
+/** @type {(key: string) => void} */
 export function viewVideo(key) {
   Bun.spawn([isMac ? "open" : "xdg-open", getWatchUrl(key)]);
 }
 
+/** @type {(key: string, options?: { autoplay?: boolean }) => void} */
 export function copyVideoUrl(key, options = {}) {
   const url = getWatchUrl(key, options);
   const candidates = [
@@ -62,8 +64,9 @@ async function s3KeyExists(key) {
 
 /** @type {(key: string, newName: string) => Promise<void>} */
 export async function renameVideo(key, newName) {
-  const type = key.split("/")[0];
-  const originalName = key.split("/").pop();
+  const parts = key.split("/");
+  const type = parts[0];
+  const originalName = parts[parts.length - 1];
   const originalExt = originalName.includes(".")
     ? "." + originalName.split(".").pop()
     : "";
@@ -201,43 +204,55 @@ function commandErrorToString(errorMessage) {
   }
 }
 
-const THUMB_DIR = '/tmp/castui-thumbs';
+const THUMB_DIR = "/tmp/castui-thumbs";
 
+/** @type {(cmd: string) => boolean} */
 function hasCommand(cmd) {
-  return Bun.spawnSync(['which', cmd]).exitCode === 0;
+  return Bun.spawnSync(["which", cmd]).exitCode === 0;
 }
 
-/** Returns a shell command string to display an image at the given path, or null if unsupported */
+/** @type {(imagePath: string) => string | null} */
 export function getImageDisplayCmd(imagePath) {
   const safe = JSON.stringify(imagePath);
-  if (process.env.KITTY_WINDOW_ID || process.env.TERM === 'xterm-kitty') {
-    if (hasCommand('kitten')) return `kitten icat --align center ${safe}`;
+  if (process.env.KITTY_WINDOW_ID || process.env.TERM === "xterm-kitty") {
+    if (hasCommand("kitten")) return `kitten icat --align center ${safe}`;
   }
-  if (process.env.TERM_PROGRAM === 'iTerm.app') {
-    if (hasCommand('imgcat')) return `imgcat ${safe}`;
+  if (process.env.TERM_PROGRAM === "iTerm.app") {
+    if (hasCommand("imgcat")) return `imgcat ${safe}`;
   }
-  if (hasCommand('chafa')) return `chafa --align center ${safe}`;
+  if (hasCommand("chafa")) return `chafa --align center ${safe}`;
   return null;
 }
 
-/** @type {(key: string) => Promise<string|null>} */
+/** @type {(key: string) => Promise<string | null>} */
 export async function generateThumbnail(key) {
   if (!existsSync(THUMB_DIR)) mkdirSync(THUMB_DIR, { recursive: true });
-  const safeKey = key.replace(/\//g, '_');
+  const safeKey = key.replace(/\//g, "_");
   const thumbPath = `${THUMB_DIR}/${safeKey}.jpg`;
   if (!existsSync(thumbPath)) {
     const url = `https://${config.baseAwsUrl}/${key}`;
-    const proc = Bun.spawn([
-      'ffmpeg',
-      '-probesize', '500000',
-      '-analyzeduration', '500000',
-      '-fflags', '+discardcorrupt+nobuffer',
-      '-ss', '1',
-      '-i', url,
-      '-vframes', '1',
-      '-q:v', '8',
-      '-y', thumbPath,
-    ], { stdout: 'ignore', stderr: 'ignore' });
+    const proc = Bun.spawn(
+      [
+        "ffmpeg",
+        "-probesize",
+        "500000",
+        "-analyzeduration",
+        "500000",
+        "-fflags",
+        "+discardcorrupt+nobuffer",
+        "-ss",
+        "1",
+        "-i",
+        url,
+        "-vframes",
+        "1",
+        "-q:v",
+        "8",
+        "-y",
+        thumbPath,
+      ],
+      { stdout: "ignore", stderr: "ignore" },
+    );
     const exitCode = await proc.exited;
     if (exitCode !== 0) return null;
   }
