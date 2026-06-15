@@ -13,7 +13,15 @@ import {
   getPageSize,
   setFilter,
 } from "./modules/videos";
-import { viewVideo, copyVideoUrl, generateThumbnail, getImageDisplayCmd, toggleVideoPermanence, uploadVideo, pickFile } from "./commands";
+import {
+  viewVideo,
+  copyVideoUrl,
+  generateThumbnail,
+  getImageDisplayCmd,
+  toggleVideoPermanence,
+  uploadVideo,
+  pickFile,
+} from "./commands";
 import { renameDialog } from "./modules/rename-dialog";
 import { deleteDialog } from "./modules/delete-dialog";
 import { confirmDialog } from "./modules/confirm-dialog";
@@ -48,7 +56,7 @@ export async function initialize() {
   renderedVideosUi.focus();
 
   // Filter bar
-  let filterText = '';
+  let filterText = "";
   let filterActive = false;
   let enterSuppressed = false;
   const blessed = /** @type {any} */ (reblessed);
@@ -99,14 +107,20 @@ export async function initialize() {
     // Briefly suppress key propagation so the enter/esc that closed the dialog
     // doesn't leak into renderedVideosUi handlers
     screen.grabKeys = true;
-    setTimeout(() => { screen.grabKeys = false; }, 0);
+    setTimeout(() => {
+      screen.grabKeys = false;
+    }, 0);
   }
 
   let moreNotice = null;
 
   renderedVideosUi.on("select item", function () {
     if (filterActive || filterBar.visible) {
-      if (moreNotice) { moreNotice.destroy(); moreNotice = null; screen.render(); }
+      if (moreNotice) {
+        moreNotice.destroy();
+        moreNotice = null;
+        screen.render();
+      }
       return;
     }
     const index = renderedVideosUi.selected;
@@ -132,16 +146,16 @@ export async function initialize() {
   });
 
   renderedVideosUi.key(["/"], function () {
-    filterText = '';
-    setFilter('');
+    filterText = "";
+    setFilter("");
     showFilterBar();
   });
 
   renderedVideosUi.key(["escape"], function () {
     if (!filterBar.visible) return;
-    filterText = '';
+    filterText = "";
     filterActive = false;
-    setFilter('');
+    setFilter("");
     hideFilterBar();
   });
 
@@ -158,13 +172,15 @@ export async function initialize() {
         screen.render();
       }, 0);
       screen.grabKeys = true;
-      setTimeout(() => { screen.grabKeys = false; }, 0);
+      setTimeout(() => {
+        screen.grabKeys = false;
+      }, 0);
       return;
     }
 
     if (key.name === "escape") {
-      filterText = '';
-      setFilter('');
+      filterText = "";
+      setFilter("");
       hideFilterBar();
       return;
     }
@@ -204,7 +220,9 @@ export async function initialize() {
     deleteDialog(screen, video, (submitted) => {
       showAllChildren();
       dialogClosed();
-      setTimeout(() => { enterSuppressed = false; }, 0);
+      setTimeout(() => {
+        enterSuppressed = false;
+      }, 0);
       if (submitted) reloadVideos();
       renderedVideosUi.focus();
       screen.render();
@@ -221,7 +239,9 @@ export async function initialize() {
     renameDialog(screen, video, (submitted) => {
       showAllChildren();
       dialogClosed();
-      setTimeout(() => { enterSuppressed = false; }, 0);
+      setTimeout(() => {
+        enterSuppressed = false;
+      }, 0);
       if (submitted) reloadVideos();
       renderedVideosUi.focus();
       screen.render();
@@ -232,7 +252,10 @@ export async function initialize() {
     if (filterActive) return;
     let message;
     try {
-      const filePath = await pickFile(); // opens zenity, waits for user
+      const filePath = await pickFile();
+      if (!filePath) {
+        return;
+      } // user cancelled, do nothing
       message = messageUi(screen, {
         top: /** @type {number} */ (screen.height) - 1,
         left: 0,
@@ -245,7 +268,10 @@ export async function initialize() {
       await uploadVideo(filePath);
       await reloadVideos();
     } catch (err) {
-      if (message) { message.destroy(); message = null; }
+      if (message) {
+        message.destroy();
+        message = null;
+      }
       const error = /** @type {Error} */ (err);
       if (error.message) {
         const errMsg = messageUi(screen, {
@@ -255,7 +281,10 @@ export async function initialize() {
           height: "shrink",
           content: error.message,
         });
-        setTimeout(() => { errMsg.destroy(); screen.render(); }, 4000);
+        setTimeout(() => {
+          errMsg.destroy();
+          screen.render();
+        }, 4000);
         screen.render();
       }
     }
@@ -300,7 +329,10 @@ export async function initialize() {
     enterSuppressed = true;
     const index = renderedVideosUi.selected;
     const video = getVideoByIndex(index);
-    if (!video) { enterSuppressed = false; return; }
+    if (!video) {
+      enterSuppressed = false;
+      return;
+    }
 
     // Show loading indicator while generating thumbnail
     const message = messageUi(screen, {
@@ -324,7 +356,10 @@ export async function initialize() {
         height: "shrink",
         content: "Failed to generate preview",
       });
-      setTimeout(() => { err.destroy(); screen.render(); }, 2000);
+      setTimeout(() => {
+        err.destroy();
+        screen.render();
+      }, 2000);
       screen.render();
       enterSuppressed = false;
       return;
@@ -337,19 +372,25 @@ export async function initialize() {
     const details = `${video.name}  |  ${video.displayDate}  |  ${video.size}${permanentLabel}`;
 
     const imageCmd = getImageDisplayCmd(thumbPath);
-    const imageSection = imageCmd ? `${imageCmd} && ` : '';
+    const imageSection = imageCmd ? `${imageCmd} && ` : "";
 
     // Run image display and keypress wait in a single subprocess with full terminal control
-    Bun.spawnSync([
-      "sh", "-c",
-      `clear && printf "\\n  ${details}\\n\\n" && ${imageSection}printf "\\nPress any key to return..." && stty raw -echo && dd bs=1 count=1 >/dev/null 2>&1; stty sane`,
-    ], { stdin: "inherit", stdout: "inherit", stderr: "inherit" });
+    Bun.spawnSync(
+      [
+        "sh",
+        "-c",
+        `clear && printf "\\n  ${details}\\n\\n" && ${imageSection}printf "\\nPress any key to return..." && stty raw -echo && dd bs=1 count=1 >/dev/null 2>&1; stty sane`,
+      ],
+      { stdin: "inherit", stdout: "inherit", stderr: "inherit" },
+    );
 
     resumeProgram();
     screen.program.hideCursor();
     screen.program.emit("resize");
     screen.render();
-    setTimeout(() => { enterSuppressed = false; }, 200);
+    setTimeout(() => {
+      enterSuppressed = false;
+    }, 200);
   });
 
   renderedVideosUi.key(["c"], function () {
@@ -383,7 +424,9 @@ export async function initialize() {
         left: 0,
         right: 0,
         height: "shrink",
-        content: isPermanent ? "Moving to expires..." : "Moving to permanent...",
+        content: isPermanent
+          ? "Moving to expires..."
+          : "Moving to permanent...",
         loader: true,
       });
       screen.render();
@@ -400,18 +443,25 @@ export async function initialize() {
     if (isPermanent) {
       hideAllChildren();
       enterSuppressed = true;
-      confirmDialog(screen, {
-        title: "Remove Permanent",
-        message: "Are you sure you would like to\nchange this video to expire?",
-        confirmLabel: "Change",
-      }, async (confirmed) => {
-        showAllChildren();
-        dialogClosed();
-        setTimeout(() => { enterSuppressed = false; }, 0);
-        renderedVideosUi.focus();
-        if (confirmed) await doToggle();
-        screen.render();
-      });
+      confirmDialog(
+        screen,
+        {
+          title: "Remove Permanent",
+          message:
+            "Are you sure you would like to\nchange this video to expire?",
+          confirmLabel: "Change",
+        },
+        async (confirmed) => {
+          showAllChildren();
+          dialogClosed();
+          setTimeout(() => {
+            enterSuppressed = false;
+          }, 0);
+          renderedVideosUi.focus();
+          if (confirmed) await doToggle();
+          screen.render();
+        },
+      );
     } else {
       await doToggle();
     }

@@ -84,25 +84,43 @@ export async function renameVideo(key, newName) {
   ]);
 }
 
-/** @type {() => Promise<string>} */
+/** @type {(command: string[], isCancellation: (stderr: string, stdout: string) => boolean) => Promise<string | null>} */
+async function runCommandAllowingCancel(command, isCancellation) {
+  const proc = Bun.spawn(command, { stdout: "pipe", stderr: "pipe" });
+  const [stdout, stderr] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  const exitCode = await proc.exited;
+  if (exitCode !== 0) {
+    if (isCancellation(stderr, stdout)) return null;
+    throw new Error(commandErrorToString(stderr));
+  }
+  return stdout;
+}
+
+/** @type {() => Promise<string | null>} */
 export async function pickFile() {
   if (config.filePickerCommand) {
     const result = await runCommand(["sh", "-c", config.filePickerCommand]);
-    return result.trim();
+    return result.trim() || null;
   }
   if (isMac) {
-    const alias = await runCommand([
-      "osascript",
-      "-e",
-      'POSIX path of (choose file with prompt "Select video to upload")',
-    ]);
-    return alias.trim();
+    const alias = await runCommandAllowingCancel(
+      [
+        "osascript",
+        "-e",
+        'POSIX path of (choose file with prompt "Select video to upload")',
+      ],
+      (stderr) => stderr.includes("User canceled"),
+    );
+    return alias ? alias.trim() : null;
   }
-  return await runCommand([
-    "zenity",
-    "--file-selection",
-    "--title=Select video to upload",
-  ]);
+  const result = await runCommandAllowingCancel(
+    ["zenity", "--file-selection", "--title=Select video to upload"],
+    (_stderr, stdout) => !stdout.trim(),
+  );
+  return result ? result.trim() : null;
 }
 
 /** @type {(filePath: string, options?: { permanent?: boolean }) => Promise<string>} */
