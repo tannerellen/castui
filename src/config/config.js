@@ -6,6 +6,7 @@ import { join } from "path";
  * @typedef {Object} CastuiFileConfig
  * @property {{ bucket: string, region: string }} [aws]
  * @property {string} [watchUrl]
+ * @property {string} [includeTypeInUrl]
  * @property {number} [pageSize]
  * @property {string} [filePickerCommand]
  * @property {{ autoplay: boolean }} [playback]
@@ -49,6 +50,7 @@ export const config = {
   bucket,
   baseAwsUrl: `${bucket}.s3.${region}.amazonaws.com`,
   baseWatchUrl: fileConfig.watchUrl ?? "",
+  includeTypeInUrl: fileConfig.includeTypeInUrl ?? false,
   pageSize: fileConfig.pageSize ?? 50,
   /** @type {string | null} */
   filePickerCommand: fileConfig.filePickerCommand ?? null,

@@ -37,6 +37,7 @@ Example `config.json`:
     "region": "your-aws-region"
   },
   "watchUrl": "your-watch-domain.example.com",
+  "includeTypeInUrl": false,
   "pageSize": 50,
   "filePickerCommand": "zenity --file-selection --title='Select video'",
   "playback": {
@@ -50,6 +51,7 @@ Example `config.json`:
 | `aws.bucket` | The S3 bucket containing your videos |
 | `aws.region` | The AWS region of your bucket (e.g. `us-east-1`) |
 | `watchUrl` | Base domain used to build video watch URLs |
+| `includeTypeInUrl` | Will include permanent or expires in url params. Could speed up video loading, but most likely not. (default: false)|
 | `pageSize` | Number of videos to load at a time (default: `50`) |
 | `filePickerCommand` | Shell command that outputs a file path to stdout. Omit to use the default (`zenity` on Linux, `osascript` on macOS) |
 | `playback.autoplay` | If `true`, appends `autoplay=1` to the watch URL when opening a video (default: `false`) |

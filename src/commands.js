@@ -16,13 +16,27 @@ function log(...args) {
   );
 }
 
-/** @type {(key: string, options?: { autoplay?: boolean }) => string} */
+/** @type {(key: string, options?: { autoplay?: boolean, includeTypeInUrl?: boolean }) => string} */
 export function getWatchUrl(key, options = {}) {
+  const params = [];
   const [type, ...rest] = key.split("/");
   const filename = rest.join("/");
   const encoded = btoa(filename);
-  const autoplay = (options.autoplay ?? config.autoplay) ? "&autoplay=1" : "";
-  return `https://${config.baseWatchUrl}/?t=${type}&s=${encoded}${autoplay}`;
+
+  // Include video expiration flag (optional)
+  if (options.includeTypeInUrl ?? config.includeTypeInUrl) {
+    params.push(`t=${type}`);
+  }
+
+  // Video location
+  params.push(`s=${encoded}`);
+
+  // Include autoplay
+  if (options.autoplay ?? config.autoplay) {
+    params.push("autoplay=1");
+  }
+
+  return `https://${config.baseWatchUrl}/?${params.join("&")}`;
 }
 
 /** @type {(key: string) => void} */
