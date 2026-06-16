@@ -32,7 +32,7 @@ export function viewVideo(key) {
 
 /** @type {(key: string, options?: { autoplay?: boolean }) => void} */
 export function copyVideoUrl(key, options = {}) {
-  const url = getWatchUrl(key, options);
+  const url = getWatchUrl(key, { ...{ autoplay: false }, ...options });
   const candidates = [
     { bin: "wl-copy", cmd: `echo -n ${JSON.stringify(url)} | wl-copy` },
     {
